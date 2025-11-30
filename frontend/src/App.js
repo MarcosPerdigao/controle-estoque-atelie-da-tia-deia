@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
-import { FaEdit, FaTrashAlt, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaPlus, FaSortUp, FaSortDown } from 'react-icons/fa';
 
 function App() {
   const [produtos, setProdutos] = useState([]);
@@ -10,6 +10,9 @@ function App() {
   const [preco, setPreco] = useState('');
   const [editId, setEditId] = useState(null);
   const [mostrarSobre, setMostrarSobre] = useState(false);
+  const [ordenacao, setOrdenacao] = useState(() => {
+    return localStorage.getItem('ordenacao') || 'nome-asc';
+  });
 
   const api = axios.create({ baseURL: 'http://localhost:3001' });
 
@@ -80,6 +83,39 @@ function App() {
     setMostrarSobre(!mostrarSobre);
   };
 
+  const handleOrdenacaoChange = (tipo) => {
+    let novaOrdenacao = tipo;
+    if (ordenacao === tipo) {
+      // Se já está ordenado por esse campo em asc, muda para desc
+      if (tipo.endsWith('-asc')) {
+        novaOrdenacao = tipo.replace('-asc', '-desc');
+      } else {
+        novaOrdenacao = tipo.replace('-desc', '-asc');
+      }
+    }
+    setOrdenacao(novaOrdenacao);
+    localStorage.setItem('ordenacao', novaOrdenacao);
+  };
+
+  const produtosOrdenados = [...produtos].sort((a, b) => {
+    switch (ordenacao) {
+      case 'nome-asc':
+        return a.nome.localeCompare(b.nome);
+      case 'nome-desc':
+        return b.nome.localeCompare(a.nome);
+      case 'qtd-asc':
+        return a.quantidade - b.quantidade;
+      case 'qtd-desc':
+        return b.quantidade - a.quantidade;
+      case 'preco-asc':
+        return a.preco - b.preco;
+      case 'preco-desc':
+        return b.preco - a.preco;
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div className="container">
       <h1>
@@ -119,14 +155,29 @@ function App() {
       <table border="1" width="100%" cellPadding="5" style={{ borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Quantidade</th>
-            <th>Preço</th>
+            <th 
+              onClick={() => handleOrdenacaoChange('nome-asc')} 
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
+              Nome {ordenacao === 'nome-asc' && <FaSortUp />}{ordenacao === 'nome-desc' && <FaSortDown />}
+            </th>
+            <th 
+              onClick={() => handleOrdenacaoChange('qtd-asc')} 
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
+              Quantidade {ordenacao === 'qtd-asc' && <FaSortUp />}{ordenacao === 'qtd-desc' && <FaSortDown />}
+            </th>
+            <th 
+              onClick={() => handleOrdenacaoChange('preco-asc')} 
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
+              Preço {ordenacao === 'preco-asc' && <FaSortUp />}{ordenacao === 'preco-desc' && <FaSortDown />}
+            </th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {produtos.map((p) => (
+          {produtosOrdenados.map((p) => (
             <tr key={p.id}>
               <td>{p.nome}</td>
               <td className={p.quantidade < 4 ? 'qtd-baixa' : ''}>{p.quantidade}</td>
