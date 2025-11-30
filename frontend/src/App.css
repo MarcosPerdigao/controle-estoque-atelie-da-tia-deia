@@ -91,7 +91,7 @@ body.dark-theme {
 .app-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 24px 40px;
+  padding: 0px 24px 40px;
   animation: fadeIn 0.4s ease-in-out;
 }
 
@@ -123,7 +123,7 @@ body.dark-theme {
 }
 
 .logo {
-  max-width: 200px;
+  max-width: 300px;
   height: auto;
   opacity: 0.95;
   transition: opacity 0.25s ease-in-out;
