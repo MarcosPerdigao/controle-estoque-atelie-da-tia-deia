@@ -20,6 +20,8 @@ function App() {
   const [tema, setTema] = useState(() => {
     return localStorage.getItem('tema') || 'light';
   });
+  const [busca, setBusca] = useState('');
+  const [mostrarNotificacao, setMostrarNotificacao] = useState(false);
 
   const api = axios.create({ baseURL: 'http://localhost:3001' });
 
@@ -31,6 +33,30 @@ function App() {
     document.body.className = tema === 'dark' ? 'dark-theme' : 'light-theme';
     localStorage.setItem('tema', tema);
   }, [tema]);
+
+  useEffect(() => {
+    const handleKeyboard = (e) => {
+      if (mostrarModalEdicao || mostrarSobre) return;
+      
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        salvarProduto();
+      }
+      
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        limparCampos();
+      }
+      
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        salvarProduto();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [nome, quantidade, preco, mostrarModalEdicao, mostrarSobre]);
 
   const toggleTema = () => {
     setTema(tema === 'light' ? 'dark' : 'light');
@@ -68,9 +94,15 @@ function App() {
       await api.post('/produtos', dados);
       limparCampos();
       fetchProdutos();
+      mostrarNotificacaoSucesso();
     } catch {
       alert('Erro ao salvar produto');
     }
+  };
+
+  const mostrarNotificacaoSucesso = () => {
+    setMostrarNotificacao(true);
+    setTimeout(() => setMostrarNotificacao(false), 3000);
   };
 
   const editarProduto = (produto) => {
@@ -110,6 +142,13 @@ function App() {
     setPrecoEdicao('');
   };
 
+  const duplicarProduto = (produto) => {
+    setNome(produto.nome);
+    setQuantidade(produto.quantidade);
+    setPreco(produto.preco);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const deletarProduto = async (id) => {
     if (window.confirm('Confirma exclusão?')) {
       try {
@@ -139,7 +178,11 @@ function App() {
     localStorage.setItem('ordenacao', novaOrdenacao);
   };
 
-  const produtosOrdenados = [...produtos].sort((a, b) => {
+  const produtosFiltrados = produtos.filter(p => 
+    p.nome.toLowerCase().includes(busca.toLowerCase())
+  );
+
+  const produtosOrdenados = [...produtosFiltrados].sort((a, b) => {
     switch (ordenacao) {
       case 'nome-asc':
         return a.nome.localeCompare(b.nome);
@@ -158,12 +201,31 @@ function App() {
     }
   });
 
+  const valorTotalEstoque = produtos.reduce((total, p) => {
+    return total + (p.quantidade * p.preco);
+  }, 0);
+
+  const produtosEstoqueBaixo = produtos.filter(p => p.quantidade < 4);
+
+  const scrollParaEstoqueBaixo = () => {
+    const primeiroItemBaixo = document.querySelector('.qtd-baixa');
+    if (primeiroItemBaixo) {
+      primeiroItemBaixo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
     <>
       <div className="app-container">
         <button className="theme-toggle" onClick={toggleTema} aria-label="Alternar tema">
           {tema === 'light' ? <FaMoon /> : <FaSun />}
         </button>
+
+        {mostrarNotificacao && (
+          <div className="notification-success">
+            ✓ Produto salvo com sucesso!
+          </div>
+        )}
 
         <header className="app-header">
           <div className="header-content">
@@ -201,6 +263,22 @@ function App() {
               </button>
             </div>
           </section>
+
+          {produtosEstoqueBaixo.length > 0 && (
+            <div className="alert-estoque-baixo" onClick={scrollParaEstoqueBaixo}>
+              <span className="alert-icon">🔔</span>
+              <span>Produtos com estoque baixo: <strong>{produtosEstoqueBaixo.length}</strong> {produtosEstoqueBaixo.length === 1 ? 'item' : 'itens'}</span>
+            </div>
+          )}
+
+          <div className="search-section">
+            <input
+              className="search-input"
+              placeholder="🔍 Buscar produto por nome..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+          </div>
 
           <section className="table-section">
             <div className="table-container">
@@ -243,17 +321,23 @@ function App() {
                           {p.quantidade}
                         </span>
                       </td>
-                      <td className="product-price">
+                      <td 
+                        className="product-price"
+                        title={`Preço unitário: ${Number(p.preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
+                      >
                         {Number(p.preco).toLocaleString('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',
                         })}
                       </td>
                       <td className="actions-cell">
-                        <button onClick={() => editarProduto(p)} className="btn-edit">
+                        <button onClick={() => editarProduto(p)} className="btn-edit" title="Editar">
                           <FaEdit />
                         </button>
-                        <button onClick={() => deletarProduto(p.id)} className="btn-delete">
+                        <button onClick={() => duplicarProduto(p)} className="btn-duplicate" title="Duplicar">
+                          📄
+                        </button>
+                        <button onClick={() => deletarProduto(p.id)} className="btn-delete" title="Excluir">
                           <FaTrashAlt />
                         </button>
                       </td>
@@ -263,6 +347,16 @@ function App() {
               </table>
             </div>
           </section>
+
+          <div className="total-estoque-card">
+            <span className="total-label">Valor total do estoque:</span>
+            <span className="total-value">
+              {valorTotalEstoque.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}
+            </span>
+          </div>
         </main>
 
         <footer className="app-footer">

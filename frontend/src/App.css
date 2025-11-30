@@ -422,7 +422,8 @@ body.dark-theme .qtd-normal {
 }
 
 .btn-edit,
-.btn-delete {
+.btn-delete,
+.btn-duplicate {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -451,6 +452,28 @@ body.dark-theme .btn-edit {
 .btn-edit:hover {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-duplicate {
+  background-color: transparent;
+  border: 2px solid;
+}
+
+body.light-theme .btn-duplicate {
+  border-color: var(--border-light);
+  color: var(--text-light);
+}
+
+body.dark-theme .btn-duplicate {
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.btn-duplicate:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
   color: white;
   transform: translateY(-2px);
 }
@@ -786,6 +809,166 @@ body.dark-theme .btn-cancel {
 }
 
 /* ========================================
+   NOTIFICATION SUCCESS
+   ======================================== */
+
+.notification-success {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 32px;
+  border-radius: 12px;
+  background-color: #10b981;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  z-index: 3000;
+  animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ========================================
+   SEARCH SECTION
+   ======================================== */
+
+.search-section {
+  margin-bottom: 24px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 2px solid;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.25s ease-in-out;
+}
+
+body.light-theme .search-input {
+  background-color: var(--surface-light);
+  border-color: var(--border-light);
+  color: var(--text-light);
+}
+
+body.dark-theme .search-input {
+  background-color: var(--surface-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(162, 39, 59, 0.1);
+}
+
+body.light-theme .search-input::placeholder {
+  color: var(--text-secondary-light);
+}
+
+body.dark-theme .search-input::placeholder {
+  color: var(--text-secondary-dark);
+}
+
+/* ========================================
+   ALERT ESTOQUE BAIXO
+   ======================================== */
+
+.alert-estoque-baixo {
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  border: 2px solid var(--primary-color);
+  background-color: rgba(162, 39, 59, 0.1);
+}
+
+.alert-estoque-baixo:hover {
+  background-color: rgba(162, 39, 59, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(162, 39, 59, 0.2);
+}
+
+.alert-icon {
+  font-size: 20px;
+}
+
+.alert-estoque-baixo span {
+  color: var(--primary-color);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.alert-estoque-baixo strong {
+  font-weight: 700;
+}
+
+/* ========================================
+   TOTAL ESTOQUE CARD
+   ======================================== */
+
+.total-estoque-card {
+  margin-top: 32px;
+  padding: 24px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid;
+  transition: all 0.25s ease-in-out;
+}
+
+body.light-theme .total-estoque-card {
+  background-color: var(--surface-light);
+  border-color: var(--border-light);
+  box-shadow: 0 2px 12px var(--shadow-light);
+}
+
+body.dark-theme .total-estoque-card {
+  background-color: var(--surface-dark);
+  border-color: var(--border-dark);
+  box-shadow: 0 2px 12px var(--shadow-dark);
+}
+
+.total-label {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+body.light-theme .total-label {
+  color: var(--text-secondary-light);
+}
+
+body.dark-theme .total-label {
+  color: var(--text-secondary-dark);
+}
+
+.total-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 
@@ -846,7 +1029,8 @@ body.dark-theme .btn-cancel {
   }
   
   .btn-edit,
-  .btn-delete {
+  .btn-delete,
+  .btn-duplicate {
     width: 100%;
   }
   
@@ -868,6 +1052,16 @@ body.dark-theme .btn-cancel {
   
   .modal-actions {
     grid-template-columns: 1fr;
+  }
+  
+  .total-estoque-card {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .total-value {
+    font-size: 24px;
   }
 }
 
