@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
-import { FaEdit, FaTrashAlt, FaPlus, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaPlus, FaSortUp, FaSortDown, FaMoon, FaSun } from 'react-icons/fa';
 
 function App() {
   const [produtos, setProdutos] = useState([]);
@@ -13,12 +13,24 @@ function App() {
   const [ordenacao, setOrdenacao] = useState(() => {
     return localStorage.getItem('ordenacao') || 'nome-asc';
   });
+  const [tema, setTema] = useState(() => {
+    return localStorage.getItem('tema') || 'light';
+  });
 
   const api = axios.create({ baseURL: 'http://localhost:3001' });
 
   useEffect(() => {
     fetchProdutos();
   }, []);
+
+  useEffect(() => {
+    document.body.className = tema === 'dark' ? 'dark-theme' : 'light-theme';
+    localStorage.setItem('tema', tema);
+  }, [tema]);
+
+  const toggleTema = () => {
+    setTema(tema === 'light' ? 'dark' : 'light');
+  };
 
   const fetchProdutos = async () => {
     try {
@@ -117,119 +129,167 @@ function App() {
   });
 
   return (
-    <div className="container">
-      <h1>
-        <img src="/logo.png" alt="" className="logoimg" /> Ateliê da Tia Deia - Controle de Estoque
-      </h1>
-
-      <div style={{ marginBottom: 20 }}>
-        <input
-          placeholder="Nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
-        <input
-          placeholder="Quantidade"
-          type="number"
-          value={quantidade}
-          onChange={(e) => setQuantidade(e.target.value)}
-          style={{ marginLeft: 10 }}
-        />
-        <input
-          type="number"
-          placeholder="Preço (R$)"
-          value={preco}
-          onChange={(e) => setPreco(e.target.value)}
-          style={{
-            marginLeft: 10,
-            padding: '8px',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-          }}
-        />
-        <button onClick={salvarProduto} className="salvar" style={{ marginLeft: 10 }}>
-          {editId ? <FaEdit /> : <FaPlus />} {editId ? 'Atualizar' : 'Adicionar'}
+    <>
+      <div className="app-container">
+        <button className="theme-toggle" onClick={toggleTema} aria-label="Alternar tema">
+          {tema === 'light' ? <FaMoon /> : <FaSun />}
         </button>
+
+        <header className="app-header">
+          <div className="header-content">
+            <img src="/logo.png" alt="Ateliê da Tia Deia" className="logo" />
+            <h1 className="app-title">Ateliê da Tia Deia</h1>
+            <p className="app-subtitle">Controle de Estoque</p>
+          </div>
+        </header>
+
+        <main className="main-content">
+          <section className="form-section">
+            <div className="form-grid">
+              <input
+                className="input-field"
+                placeholder="Nome do produto"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+              />
+              <input
+                className="input-field"
+                placeholder="Quantidade"
+                type="number"
+                value={quantidade}
+                onChange={(e) => setQuantidade(e.target.value)}
+              />
+              <input
+                className="input-field"
+                type="number"
+                placeholder="Preço (R$)"
+                value={preco}
+                onChange={(e) => setPreco(e.target.value)}
+              />
+              <button onClick={salvarProduto} className="btn-primary">
+                {editId ? (
+                  <>
+                    <FaEdit /> Atualizar
+                  </>
+                ) : (
+                  <>
+                    <FaPlus /> Adicionar
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+
+          <section className="table-section">
+            <div className="table-container">
+              <table className="products-table">
+                <thead>
+                  <tr>
+                    <th 
+                      onClick={() => handleOrdenacaoChange('nome-asc')} 
+                      className="sortable"
+                    >
+                      <span>Nome</span>
+                      {ordenacao === 'nome-asc' && <FaSortUp className="sort-icon" />}
+                      {ordenacao === 'nome-desc' && <FaSortDown className="sort-icon" />}
+                    </th>
+                    <th 
+                      onClick={() => handleOrdenacaoChange('qtd-asc')} 
+                      className="sortable"
+                    >
+                      <span>Quantidade</span>
+                      {ordenacao === 'qtd-asc' && <FaSortUp className="sort-icon" />}
+                      {ordenacao === 'qtd-desc' && <FaSortDown className="sort-icon" />}
+                    </th>
+                    <th 
+                      onClick={() => handleOrdenacaoChange('preco-asc')} 
+                      className="sortable"
+                    >
+                      <span>Preço</span>
+                      {ordenacao === 'preco-asc' && <FaSortUp className="sort-icon" />}
+                      {ordenacao === 'preco-desc' && <FaSortDown className="sort-icon" />}
+                    </th>
+                    <th className="actions-header">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {produtosOrdenados.map((p) => (
+                    <tr key={p.id}>
+                      <td className="product-name">{p.nome}</td>
+                      <td>
+                        <span className={p.quantidade < 4 ? 'qtd-baixa' : 'qtd-normal'}>
+                          {p.quantidade}
+                        </span>
+                      </td>
+                      <td className="product-price">
+                        {Number(p.preco).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
+                      </td>
+                      <td className="actions-cell">
+                        <button onClick={() => editarProduto(p)} className="btn-edit">
+                          <FaEdit />
+                        </button>
+                        <button onClick={() => deletarProduto(p.id)} className="btn-delete">
+                          <FaTrashAlt />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <footer className="app-footer">
+          <button onClick={toggleSobre} className="btn-about">
+            Sobre o Sistema
+          </button>
+          <div className="footer-info">
+            <p>
+              Desenvolvido por{' '}
+              <a href="https://github.com/MarcosPerdigao" target="_blank" rel="noopener noreferrer">
+                Marcos Perdigão
+              </a>{' '}
+              &{' '}
+              <a href="https://github.com/bielwdev" target="_blank" rel="noopener noreferrer">
+                Gabriel Victor
+              </a>{' '}
+              para{' '}
+              <a href="https://www.instagram.com/ateliedatiadeia/" target="_blank" rel="noopener noreferrer">
+                Ateliê da Tia Deia
+              </a>
+            </p>
+            <p className="cnpj">Andrea Cristina de Oliveira Pires dos Santos - 27.504.827/0001-99</p>
+          </div>
+        </footer>
       </div>
 
-      <table border="1" width="100%" cellPadding="5" style={{ borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th 
-              onClick={() => handleOrdenacaoChange('nome-asc')} 
-              style={{ cursor: 'pointer', userSelect: 'none' }}
-            >
-              Nome {ordenacao === 'nome-asc' && <FaSortUp />}{ordenacao === 'nome-desc' && <FaSortDown />}
-            </th>
-            <th 
-              onClick={() => handleOrdenacaoChange('qtd-asc')} 
-              style={{ cursor: 'pointer', userSelect: 'none' }}
-            >
-              Quantidade {ordenacao === 'qtd-asc' && <FaSortUp />}{ordenacao === 'qtd-desc' && <FaSortDown />}
-            </th>
-            <th 
-              onClick={() => handleOrdenacaoChange('preco-asc')} 
-              style={{ cursor: 'pointer', userSelect: 'none' }}
-            >
-              Preço {ordenacao === 'preco-asc' && <FaSortUp />}{ordenacao === 'preco-desc' && <FaSortDown />}
-            </th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {produtosOrdenados.map((p) => (
-            <tr key={p.id}>
-              <td>{p.nome}</td>
-              <td className={p.quantidade < 4 ? 'qtd-baixa' : ''}>{p.quantidade}</td>
-              <td>
-                {Number(p.preco).toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                })}
-              </td>
-              <td>
-                <button onClick={() => editarProduto(p)} className="editar">
-                  <FaEdit /> Editar
-                </button>
-                <button
-                  onClick={() => deletarProduto(p.id)}
-                  className="excluir"
-                  style={{ marginLeft: 5 }}
-                >
-                  <FaTrashAlt /> Excluir
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
       {mostrarSobre && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={toggleSobre}>&times;</span>
+        <div className="modal-overlay" onClick={toggleSobre}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={toggleSobre}>
+              &times;
+            </button>
             <h2>Sobre o Sistema</h2>
-            <p>Este sistema foi desenvolvido para facilitar o controle de estoque do <strong>Ateliê da Tia Deia</strong>.
-              <p>Através dele, é possível adicionar, editar e remover produtos, além de visualizar rapidamente os itens com quantidade baixa.</p>
+            <p>
+              Este sistema foi desenvolvido para facilitar o controle de estoque do{' '}
+              <strong>Ateliê da Tia Deia</strong>.
             </p>
             <p>
-              O objetivo é proporcionar praticidade no gerenciamento de produtos artesanais, ajudando a manter a organização e o controle das vendas e da produção.
+              Através dele, é possível adicionar, editar e remover produtos, além de visualizar
+              rapidamente os itens com quantidade baixa.
+            </p>
+            <p>
+              O objetivo é proporcionar praticidade no gerenciamento de produtos artesanais,
+              ajudando a manter a organização e o controle das vendas e da produção.
             </p>
           </div>
         </div>
       )}
-
-      <button onClick={toggleSobre} className="btn-sobre">
-        Sobre
-      </button>
-
-      <footer className="rodape">
-        <p>
-          Desenvolvido por <a href='https://github.com/MarcosPerdigao' className="personNames">Marcos Perdigão</a> & <a href="https://github.com/bielwdev" className="personNames">Gabriel Victor </a>para <a href="https://www.instagram.com/ateliedatiadeia/" className="personNames">Ateliê da Tia Deia</a>
-        </p>
-        <p>Andrea Cristina de Oliveira Pires dos Santos - 27.504.827/0001-99</p>
-      </footer>
-    </div>
+    </>
   );
 }
 
