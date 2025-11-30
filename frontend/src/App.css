@@ -669,6 +669,123 @@ body.dark-theme .modal-close {
 }
 
 /* ========================================
+   EDIT MODAL
+   ======================================== */
+
+.modal-edit {
+  max-width: 540px;
+  width: 100%;
+  border-radius: 20px;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease-in-out;
+}
+
+body.light-theme .modal-edit {
+  background-color: var(--surface-light);
+  color: var(--text-light);
+}
+
+body.dark-theme .modal-edit {
+  background-color: var(--surface-dark);
+  color: var(--text-dark);
+}
+
+.modal-edit h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: var(--primary-color);
+  padding-right: 40px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-field label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+body.light-theme .modal-field label {
+  color: var(--text-secondary-light);
+}
+
+body.dark-theme .modal-field label {
+  color: var(--text-secondary-dark);
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-cancel {
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background-color: transparent;
+  border: 2px solid;
+  transition: all 0.25s ease-in-out;
+}
+
+body.light-theme .btn-cancel {
+  border-color: var(--border-light);
+  color: var(--text-light);
+}
+
+body.dark-theme .btn-cancel {
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.btn-cancel:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.btn-save {
+  padding: 16px 24px;
+  border-radius: 12px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+}
+
+.btn-save:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(162, 39, 59, 0.3);
+}
+
+.btn-save:active {
+  transform: translateY(0);
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 
@@ -739,6 +856,18 @@ body.dark-theme .modal-close {
   
   .modal-content h2 {
     font-size: 24px;
+  }
+  
+  .modal-edit {
+    padding: 32px 24px;
+  }
+  
+  .modal-edit h2 {
+    font-size: 22px;
+  }
+  
+  .modal-actions {
+    grid-template-columns: 1fr;
   }
 }
 

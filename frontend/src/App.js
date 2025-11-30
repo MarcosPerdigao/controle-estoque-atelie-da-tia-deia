@@ -10,6 +10,10 @@ function App() {
   const [preco, setPreco] = useState('');
   const [editId, setEditId] = useState(null);
   const [mostrarSobre, setMostrarSobre] = useState(false);
+  const [mostrarModalEdicao, setMostrarModalEdicao] = useState(false);
+  const [nomeEdicao, setNomeEdicao] = useState('');
+  const [quantidadeEdicao, setQuantidadeEdicao] = useState('');
+  const [precoEdicao, setPrecoEdicao] = useState('');
   const [ordenacao, setOrdenacao] = useState(() => {
     return localStorage.getItem('ordenacao') || 'nome-asc';
   });
@@ -61,11 +65,7 @@ function App() {
     };
 
     try {
-      if (editId) {
-        await api.put(`/produtos/${editId}`, dados);
-      } else {
-        await api.post('/produtos', dados);
-      }
+      await api.post('/produtos', dados);
       limparCampos();
       fetchProdutos();
     } catch {
@@ -74,10 +74,40 @@ function App() {
   };
 
   const editarProduto = (produto) => {
-    setNome(produto.nome);
-    setQuantidade(produto.quantidade);
-    setPreco(produto.preco);
     setEditId(produto.id);
+    setNomeEdicao(produto.nome);
+    setQuantidadeEdicao(produto.quantidade);
+    setPrecoEdicao(produto.preco);
+    setMostrarModalEdicao(true);
+  };
+
+  const salvarEdicao = async () => {
+    if (!nomeEdicao || !quantidadeEdicao || !precoEdicao) {
+      alert('Nome, quantidade e preço são obrigatórios');
+      return;
+    }
+
+    const dados = {
+      nome: nomeEdicao,
+      quantidade: Number(quantidadeEdicao),
+      preco: Number(precoEdicao),
+    };
+
+    try {
+      await api.put(`/produtos/${editId}`, dados);
+      fecharModalEdicao();
+      fetchProdutos();
+    } catch {
+      alert('Erro ao atualizar produto');
+    }
+  };
+
+  const fecharModalEdicao = () => {
+    setMostrarModalEdicao(false);
+    setEditId(null);
+    setNomeEdicao('');
+    setQuantidadeEdicao('');
+    setPrecoEdicao('');
   };
 
   const deletarProduto = async (id) => {
@@ -167,15 +197,7 @@ function App() {
                 onChange={(e) => setPreco(e.target.value)}
               />
               <button onClick={salvarProduto} className="btn-primary">
-                {editId ? (
-                  <>
-                    <FaEdit /> Atualizar
-                  </>
-                ) : (
-                  <>
-                    <FaPlus /> Adicionar
-                  </>
-                )}
+                <FaPlus /> Adicionar
               </button>
             </div>
           </section>
@@ -286,6 +308,56 @@ function App() {
               O objetivo é proporcionar praticidade no gerenciamento de produtos artesanais,
               ajudando a manter a organização e o controle das vendas e da produção.
             </p>
+          </div>
+        </div>
+      )}
+
+      {mostrarModalEdicao && (
+        <div className="modal-overlay" onClick={fecharModalEdicao}>
+          <div className="modal-edit" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={fecharModalEdicao}>
+              &times;
+            </button>
+            <h2>Editar Produto</h2>
+            <div className="modal-form">
+              <div className="modal-field">
+                <label>Nome do Produto</label>
+                <input
+                  className="input-field"
+                  placeholder="Nome do produto"
+                  value={nomeEdicao}
+                  onChange={(e) => setNomeEdicao(e.target.value)}
+                />
+              </div>
+              <div className="modal-field">
+                <label>Quantidade</label>
+                <input
+                  className="input-field"
+                  placeholder="Quantidade"
+                  type="number"
+                  value={quantidadeEdicao}
+                  onChange={(e) => setQuantidadeEdicao(e.target.value)}
+                />
+              </div>
+              <div className="modal-field">
+                <label>Preço (R$)</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  placeholder="Preço (R$)"
+                  value={precoEdicao}
+                  onChange={(e) => setPrecoEdicao(e.target.value)}
+                />
+              </div>
+              <div className="modal-actions">
+                <button onClick={fecharModalEdicao} className="btn-cancel">
+                  Cancelar
+                </button>
+                <button onClick={salvarEdicao} className="btn-save">
+                  <FaEdit /> Salvar Alterações
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
