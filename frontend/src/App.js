@@ -22,6 +22,7 @@ function App() {
   });
   const [busca, setBusca] = useState('');
   const [mostrarNotificacao, setMostrarNotificacao] = useState(false);
+  const [mensagemNotificacao, setMensagemNotificacao] = useState('');
 
   const api = axios.create({ baseURL: 'http://localhost:3001' });
 
@@ -94,13 +95,14 @@ function App() {
       await api.post('/produtos', dados);
       limparCampos();
       fetchProdutos();
-      mostrarNotificacaoSucesso();
+      mostrarNotificacaoSucesso('Produto adicionado com sucesso!');
     } catch {
       alert('Erro ao salvar produto');
     }
   };
 
-  const mostrarNotificacaoSucesso = () => {
+  const mostrarNotificacaoSucesso = (mensagem) => {
+    setMensagemNotificacao(mensagem);
     setMostrarNotificacao(true);
     setTimeout(() => setMostrarNotificacao(false), 3000);
   };
@@ -129,6 +131,7 @@ function App() {
       await api.put(`/produtos/${editId}`, dados);
       fecharModalEdicao();
       fetchProdutos();
+      mostrarNotificacaoSucesso('Produto atualizado com sucesso!');
     } catch {
       alert('Erro ao atualizar produto');
     }
@@ -154,6 +157,7 @@ function App() {
       try {
         await api.delete(`/produtos/${id}`);
         fetchProdutos();
+        mostrarNotificacaoSucesso('Produto excluído com sucesso!');
       } catch {
         alert('Erro ao deletar produto');
       }
@@ -223,7 +227,7 @@ function App() {
 
         {mostrarNotificacao && (
           <div className="notification-success">
-            ✓ Produto salvo com sucesso!
+            ✓ {mensagemNotificacao}
           </div>
         )}
 
