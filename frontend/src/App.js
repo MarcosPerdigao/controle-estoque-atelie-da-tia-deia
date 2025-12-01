@@ -200,6 +200,10 @@ function App() {
         return a.preco - b.preco;
       case 'preco-desc':
         return b.preco - a.preco;
+      case 'preco-total-asc':
+        return (a.quantidade * a.preco) - (b.quantidade * b.preco);
+      case 'preco-total-desc':
+        return (b.quantidade * b.preco) - (a.quantidade * a.preco);
       default:
         return 0;
     }
@@ -313,6 +317,14 @@ function App() {
                       {ordenacao === 'preco-asc' && <FaSortUp className="sort-icon" />}
                       {ordenacao === 'preco-desc' && <FaSortDown className="sort-icon" />}
                     </th>
+                    <th 
+                      onClick={() => handleOrdenacaoChange('preco-total-asc')} 
+                      className="sortable"
+                    >
+                      <span>Preço Total</span>
+                      {ordenacao === 'preco-total-asc' && <FaSortUp className="sort-icon" />}
+                      {ordenacao === 'preco-total-desc' && <FaSortDown className="sort-icon" />}
+                    </th>
                     <th className="actions-header">Ações</th>
                   </tr>
                 </thead>
@@ -330,6 +342,12 @@ function App() {
                         title={`Preço unitário: ${Number(p.preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
                       >
                         {Number(p.preco).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
+                      </td>
+                      <td className="product-price-total">
+                        {Number(p.quantidade * p.preco).toLocaleString('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',
                         })}

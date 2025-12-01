@@ -384,6 +384,13 @@ body.dark-theme .product-name {
   font-variant-numeric: tabular-nums;
 }
 
+.product-price-total {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary-color);
+  font-size: 1.05em;
+}
+
 .qtd-normal {
   padding: 6px 12px;
   border-radius: 8px;
